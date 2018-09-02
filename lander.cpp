@@ -38,9 +38,23 @@ vector3d acceleration(vector3d position, vector3d velocity)
 void autopilot (void)
   // Autopilot to adjust the engine throttle, parachute and attitude control
 {
-  double delta = (acceleration(position, vector3d(0.0, 0.0, 0.0))).abs();
-  const double Kh = 0.0, controller_gain = 0.0, target_speed = 0.5;
+  const double Kh = 0.002, controller_gain = 0.5, target_speed = 0.5;
   double error = -(target_speed + Kh * (position.abs() - MARS_RADIUS) + velocity * position.norm());
+  double p_out = controller_gain * error;
+  double weight_abs = (GRAVITY * MARS_MASS/ position.abs2()) * fuel * FUEL_CAPACITY * FUEL_DENSITY;
+  double delta = weight_abs / MAX_THRUST;
+  if (p_out < -delta)
+  {
+    throttle = 0.0;
+  }
+  else if (p_out < (1 - delta))
+  {
+    throttle = delta + p_out;
+  }
+  else
+  {
+    throttle = 1;
+  }
 }
 
 void numerical_dynamics (void)
