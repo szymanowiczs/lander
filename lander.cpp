@@ -38,8 +38,10 @@ vector3d acceleration(vector3d position, vector3d velocity)
 void autopilot (void)
   // Autopilot to adjust the engine throttle, parachute and attitude control
 {
-  const double Kh = 0.002, controller_gain = 0.5, target_speed = 0.5;
-  double error = -(target_speed + Kh * (position.abs() - MARS_RADIUS) + velocity * position.norm());
+  static const double Kh = 0.01, controller_gain = 0.6, target_speed = 0.5;
+  static double target_altitude = 500.0;
+  throttle = (GRAVITY * (FUEL_CAPACITY * FUEL_DENSITY + UNLOADED_LANDER_MASS) * MARS_MASS) / (position.abs2() * MAX_THRUST);
+  /*double error = -(target_speed + Kh * (position.abs() - MARS_RADIUS) + velocity * position.norm());
   double p_out = controller_gain * error;
   double weight_abs = (GRAVITY * MARS_MASS/ position.abs2()) * fuel * FUEL_CAPACITY * FUEL_DENSITY;
   double delta = weight_abs / MAX_THRUST;
@@ -53,8 +55,8 @@ void autopilot (void)
   }
   else
   {
-    throttle = 1;
-  }
+    throttle = 1.0;
+  }*/
 }
 
 void numerical_dynamics (void)
@@ -84,7 +86,7 @@ void numerical_dynamics (void)
   new_position = 2 * position - previous_position + a * delta_t * delta_t;
 
   // Linear approximation for velocity between these 2 points
-  velocity = (position - previous_position) / (2 * delta_t);
+  velocity = (new_position - previous_position) / (2 * delta_t);
 
   // Shift the two previous positions
   previous_position = position;
@@ -189,12 +191,33 @@ void initialize_simulation (void)
 	break;
 
   case 6:
+  position = vector3d(0.0, -(MARS_RADIUS + 500.0), 0.0);
+  velocity = vector3d(0.0, 0.0, 0.0);
+  orientation = vector3d(0.0, 0.0, 90.0);
+  delta_t = 0.01;
+  parachute_status = NOT_DEPLOYED;
+  stabilized_attitude = true;
+  autopilot_enabled = true;
 	break;
 
   case 7:
+  position = vector3d(0.0, -(MARS_RADIUS + 510.0), 0.0);
+  velocity = vector3d(0.0, 0.0, 0.0);
+  orientation = vector3d(0.0, 0.0, 90.0);
+  delta_t = 0.01;
+  parachute_status = NOT_DEPLOYED;
+  stabilized_attitude = true;
+  autopilot_enabled = true;
 	break;
 
   case 8:
+  position = vector3d(0.0, -(MARS_RADIUS + 700.0), 0.0);
+  velocity = vector3d(0.0, 0.0, 0.0);
+  orientation = vector3d(0.0, 0.0, 90.0);
+  delta_t = 0.01;
+  parachute_status = NOT_DEPLOYED;
+  stabilized_attitude = true;
+  autopilot_enabled = true;
 	break;
 
   case 9:
